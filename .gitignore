@@ -1,0 +1,30 @@
+# 編譯產物（別人應該自己編譯，不要把二進位檔傳上去）
+frames
+montage
+*.o
+*.dSYM/
+.build/
+
+# 測試素材與輸出（影片很大，而且可能含有不該公開的畫面）
+*.mp4
+*.MP4
+*.mov
+*.MOV
+*.m4v
+*.png
+*.jpg
+*.jpeg
+01_*/
+02_*/
+overview/
+sheet*.jpg
+總覽表*.jpg
+
+# macOS
+.DS_Store
+._*
+
+# 編輯器
+.vscode/
+.idea/
+*.swp

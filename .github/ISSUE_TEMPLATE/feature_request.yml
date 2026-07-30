@@ -1,0 +1,62 @@
+name: Feature request / 功能建議
+description: Suggest an improvement / 提出改進想法
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing, please skim the **Scope** section of the README — it lists what this
+        tool deliberately won't do. Ideas outside that scope will be closed, but a fork is
+        always a legitimate option.
+
+        提出之前請先看一下 README 的「**範圍**」一節 —— 那裡列出了這個工具刻意不做的事。
+        超出範圍的建議會被關閉，但你隨時可以 fork 一份自己維護，那是完全正當的選擇。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem did you hit? / 你遇到什麼問題？
+      description: >
+        Describe the situation, not the solution. There may be a simpler fix that doesn't
+        need a new feature. /
+        描述你遇到的狀況，而不是你想到的解法 —— 有可能有更簡單的做法，不需要加功能。
+      placeholder: |
+        I record 8 videos per project and have to run `frames` 8 times by hand,
+        and it's easy to typo a path.
+
+        我一個專案要錄 8 支影片，得手動跑 8 次 frames，路徑很容易打錯。
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What did you have in mind? / 你想到的做法（選填）
+      description: Optional. A rough idea is fine. / 選填，粗略講一下就好。
+
+  - type: dropdown
+    id: scope-check
+    attributes:
+      label: Does this need any of the following? / 這個想法會需要下列任何一項嗎？
+      description: >
+        These are settled decisions, not open questions. Answering honestly saves us both
+        time. /
+        這幾項是定案，不是待討論的事項。誠實回答可以省下雙方的時間。
+      options:
+        - "No — none of these / 不需要"
+        - "An external dependency (ffmpeg, a package, …) / 需要外部相依套件"
+        - "Windows or Linux support / 需要支援 Windows 或 Linux"
+        - "Automatic frame selection / 需要自動判斷哪一格重要"
+        - "A graphical interface / 需要圖形介面"
+        - "Not sure / 不確定"
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: How are you working around it now? / 你現在怎麼繞過這個問題？
+      description: >
+        Sometimes the workaround is good enough and the feature isn't worth the added
+        complexity. /
+        有時候繞過的方法就夠好了，加功能反而讓工具變複雜。

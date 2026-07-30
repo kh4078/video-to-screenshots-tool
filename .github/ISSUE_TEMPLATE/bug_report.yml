@@ -1,0 +1,118 @@
+name: Bug report / 問題回報
+description: Something doesn't work / 有東西壞掉了
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. The fields below exist so this can be fixed without
+        several rounds of back-and-forth — please fill in as much as you can.
+
+        感謝回報。下面的欄位是為了讓問題能一次講清楚，不用來回問好幾輪，請盡量填寫。
+
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Which tool / 哪一支工具
+      options:
+        - frames
+        - montage
+        - Both / 兩者都是
+        - Building / compiling — 編譯時就失敗了
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened / 發生了什麼事
+      description: What did you expect, and what happened instead? / 你預期會怎樣、實際上發生了什麼？
+      placeholder: |
+        Expected: 10 PNG files in ./out
+        Actually: the folder was empty and no error was shown
+
+        預期：./out 裡會有 10 個 PNG
+        實際：資料夾是空的，也沒有顯示錯誤
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: The exact command you ran / 你下的完整指令
+      description: Copy and paste it — don't retype from memory. / 直接複製貼上，不要憑印象重打。
+      render: shell
+      placeholder: FRAMES_FORMAT=png ./frames "rec.mp4" ./out 0 1206 30 60 90
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Full terminal output / 終端機的完整輸出
+      description: The whole thing, not a summary. / 全部貼上，不要摘要。
+      render: shell
+    validations:
+      required: true
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Recording source / 錄影來源
+      description: This is the single most useful field — the tool has only been tested on iPhone screen recordings. / 這是最有用的一欄，這個工具目前只在 iPhone 螢幕錄影上實測過。
+      options:
+        - iPhone / iPad screen recording
+        - Android screen recording
+        - QuickTime Player
+        - OBS
+        - Other screen recorder / 其他錄影軟體
+        - Not a screen recording / 不是螢幕錄影
+        - Not sure / 不確定
+    validations:
+      required: true
+
+  - type: input
+    id: video-specs
+    attributes:
+      label: Video specs / 影片規格
+      description: Duration, resolution, file extension, and codec if you know it. / 長度、解析度、副檔名，知道編碼格式的話也附上。
+      placeholder: "31s, 1206x2622, .MP4, H.264"
+    validations:
+      required: true
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version / macOS 版本
+      description: "Apple menu  → About This Mac / 蘋果選單  → 關於這台 Mac"
+      placeholder: "15.2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: chip
+    attributes:
+      label: Chip / 晶片
+      options:
+        - Apple Silicon (M1 / M2 / M3 / M4 …)
+        - Intel
+    validations:
+      required: true
+
+  - type: input
+    id: swift
+    attributes:
+      label: Output of `swiftc --version` / `swiftc --version` 的輸出
+      placeholder: "Apple Swift version 6.3.2"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting / 送出前確認
+      options:
+        - label: I'm on macOS (this tool does not support Windows or Linux) / 我用的是 macOS（本工具不支援 Windows 和 Linux）
+          required: true
+        - label: I rebuilt after any edit to the `.swift` files / 我改過 `.swift` 之後有重新編譯
+          required: false
