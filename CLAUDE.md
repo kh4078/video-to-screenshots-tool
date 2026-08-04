@@ -60,13 +60,92 @@ letterboxed. A script that exits 0 is not evidence that the output is correct.
 
 ## If you're helping someone use this tool (not modify it)
 
-Before picking timestamps for them, get these four answers — inferring them wrong is the
+Before picking timestamps for them, get these five answers — inferring them wrong is the
 main cause of rework:
 
 1. Full scroll coverage of every page, or one representative frame per page?
 2. Should states be captured (empty, loading, error, modals)?
 3. Should variants of the same page be split out (delivery vs. pickup, different regions)?
 4. Include OS-level UI (share sheets, control center)?
+5. **Where do the final images end up — Figma, or just files they'll place themselves?**
+   This is a binary choice, nothing more. If Figma, place them there yourself (see below).
+   If files, save the final captures to the output folder and stop — don't guess at or build
+   support for any other destination (Notion, a slide deck, a specific doc structure, etc.).
+   That's the user's call to work out with whatever assistant they're using at that moment,
+   not something this tool's workflow should hardcode.
 
 And read contact sheets at **400px per tile or wider**. At 240px page titles are illegible,
 and page titles are the most reliable way to tell screens apart.
+
+### Show the contact sheet before running the full-resolution capture — always
+
+After step 2 (sweep + contact sheet) and before step 3 (full-res capture), stop and actually
+show the user the contact sheet image. This applies **even when the five answers above already
+fully determine which timestamps to capture** (e.g. "full scroll coverage" was the answer, so
+there's technically nothing left to pick) — showing the sheet is not about picking timestamps,
+it's the user's only chance to catch a bad recording (missed a screen, cut a scroll short,
+jumped around) before you spend time on the expensive lossless full-res pass.
+
+**Listing the timestamps you intend to capture, in text, does not satisfy this.** A list of
+numbers gives the user nothing to judge — they can't tell if a screen looks right, if a scroll
+is complete, or if the recording glitched, from `[9, 12, 15, 18, ...]`. Only looking at the
+actual image tells them that. Open/display the contact sheet itself and wait for the user to
+confirm (or flag a problem) before running step 3.
+
+### Naming captures — always rename the local folder, regardless of destination
+
+Never leave final captures named by their `t<seconds>` timestamp. This step happens
+**unconditionally, before you even look at where they're going** — whether the destination
+turns out to be Figma or plain files, the local folder gets the same treatment:
+
+1. **Look at what each frame actually shows and name it after that** — the page/section and its
+   state, e.g. `選擇城市-捷運站列表`, `服務地點-成功送出`. Don't guess from the timestamp or the
+   surrounding order; open the image and read it.
+2. **If several frames are the same page/section captured at different scroll positions, name
+   them as an explicit sequence** in scroll order — `..._1of3`, `..._2of3`, `..._3of3` — so the
+   relationship is visible at a glance instead of looking like unrelated screens.
+3. **Rename in place inside the same folder the final-capture step already wrote to** (step 3's
+   output, e.g. `02_picked`) — don't create a second folder for renamed copies. That folder only
+   ever holds the hand-picked final captures, so there's nothing to protect by keeping the
+   originals, and a second copy just doubles disk usage for no benefit. `01_sweep` (the low-res
+   sweep) is a separate, disposable working folder — fine to leave its `t<seconds>` names as-is,
+   or delete it once step 3 is done.
+
+Do this before considering the job done, regardless of destination. The two destinations only
+diverge on what happens *next*:
+
+- **Files**: nothing further — the renamed folder from step 3 is the deliverable.
+- **Figma**: place the images there using **the same names** you just gave the local files —
+  same layer name, same caption text (below). Don't let the two drift into different naming —
+  the semantic name was already worked out once (that's the part that costs real time, since it
+  requires reading each image); reusing it for the local files afterward is a cheap rename, not
+  a redo, so there's no excuse for the two to disagree.
+
+### Extra step when the destination is Figma
+
+Beyond naming the layer correctly, add a small text node directly below each image showing
+that same layer name as a caption. The point is identifying a screen at a glance while scanning
+the canvas, without having to open the layers panel for every tile.
+
+### Layout spacing when placing into Figma
+
+Get this right the first time — it's easy to build a board that's technically correct but
+uncomfortable to scan, and to only notice once it's full of images.
+
+1. **Group each image with its own caption** in a small vertical auto-layout, tight spacing
+   between the two (6–8px). That tightness is what visually says "this caption belongs to the
+   image right above it."
+2. **Arrange those groups in a wrapping grid** (`layoutMode: 'HORIZONTAL'`, `layoutWrap: 'WRAP'`)
+   so the set reads as a scannable board, not one long vertical scroll.
+3. **Row gap must be clearly bigger than the image-caption gap — at least 3–4x it** (e.g. 60–80px
+   of row gap against a 6–8px image-caption gap). If the row gap is close to the image-caption
+   gap, a caption sits about as near the row below as its own image above, and it stops being
+   obvious which image it labels. This was a real bug in an earlier pass, not a hypothetical one.
+4. Column gap (`itemSpacing`) around 20px is enough — left/right neighbors are already visually
+   separated by the image edges themselves.
+5. **Give the outermost per-video-segment container real padding on all sides** (e.g. 40px).
+   Content flush against the frame edge reads as cramped.
+6. **When multiple segments land on the same page** (e.g. one container per source video),
+   stack them with a clear gap (100px+), and re-check for overlap after touching any spacing
+   value above — increasing row gap or padding grows a hugging container's height, which can
+   push it into whatever sits below it on the page.
