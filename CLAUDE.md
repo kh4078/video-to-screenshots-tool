@@ -92,6 +92,18 @@ is complete, or if the recording glitched, from `[9, 12, 15, 18, ...]`. Only loo
 actual image tells them that. Open/display the contact sheet itself and wait for the user to
 confirm (or flag a problem) before running step 3.
 
+**"Show it" means pop it open in its own window — e.g. `open sheet.jpg` — not just render it
+inline in the chat.** An inline render is easy to miss or scroll past, and gives the user no way
+to flip between sheets from multiple videos side by side. Opening the file is unambiguous: it
+puts a window on screen the user has to actually look at (or dismiss). Default to this whenever
+the environment can shell out; only fall back to inline rendering if it genuinely can't.
+
+**Name each contact sheet after its source video, never a generic `sheet.jpg`.** When more than
+one video is being processed in the same session, generic names collide — Preview (or any image
+viewer) opens all of them in one window with tabs, and `sheet.jpg` tells you nothing about which
+tab is which. Name it after the video, e.g. `總覽表_服務地點.jpg` / `contact-sheet_home.jpg`, so
+each open window is self-identifying without the user having to check the file path.
+
 ### Naming captures — always rename the local folder, regardless of destination
 
 Never leave final captures named by their `t<seconds>` timestamp. This step happens
@@ -101,9 +113,33 @@ turns out to be Figma or plain files, the local folder gets the same treatment:
 1. **Look at what each frame actually shows and name it after that** — the page/section and its
    state, e.g. `選擇城市-捷運站列表`, `服務地點-成功送出`. Don't guess from the timestamp or the
    surrounding order; open the image and read it.
+
+   **Read images one at a time, never in a parallel batch, when the content is what determines
+   the name or the section boundary.** Firing off several image reads in one go and then writing
+   analysis from the results is a real, repeatable failure mode — it's easy to mismatch which
+   description belongs to which file, especially past ~5 images or when several frames look
+   similar (an overview screen re-appearing, a form section revisited). The failure is silent:
+   the output still looks like a plausible story, it's just wrong, and it surfaces later as
+   frames grouped under the wrong section heading. One read, note what it actually shows, then
+   the next — slower, but the only way the attribution is guaranteed correct. Batch reads are
+   still fine for things where mismatching one result doesn't matter (e.g. a final visual
+   spot-check across images you've already named).
 2. **If several frames are the same page/section captured at different scroll positions, name
    them as an explicit sequence** in scroll order — `..._1of3`, `..._2of3`, `..._3of3` — so the
    relationship is visible at a glance instead of looking like unrelated screens.
+
+   **`_NofM` means "you need all of these together to see the full picture" — it is not a
+   catch-all for "these frames look similar."** Before applying it, ask: does the next frame
+   show anything the previous one didn't (new content scrolled into view, a new selection made,
+   a new element on screen)? If yes, it's a genuine sequence — number it. If no — the frames are
+   pixel-for-pixel (or near enough) the same — **keep only one of them and drop the suffix
+   entirely.** This case is common at the *end* of a section: the fixed 3-second sampling grid
+   doesn't know when the last real action happened, so if the recording lingers a few seconds
+   after the user stopped interacting (a pause before hitting stop), two or more consecutive
+   samples land on the same frozen screen. That's not a two-part reveal, it's dead recording time
+   landing on the grid — labeling it `_1of2`/`_2of2` overstates what's there and misleads anyone
+   reading the names later. Delete the redundant capture (local file and, if already placed,
+   the Figma layer + caption) and keep the single representative one, named without a suffix.
 3. **Rename in place inside the same folder the final-capture step already wrote to** (step 3's
    output, e.g. `02_picked`) — don't create a second folder for renamed copies. That folder only
    ever holds the hand-picked final captures, so there's nothing to protect by keeping the
@@ -126,6 +162,23 @@ diverge on what happens *next*:
 Beyond naming the layer correctly, add a small text node directly below each image showing
 that same layer name as a caption. The point is identifying a screen at a glance while scanning
 the canvas, without having to open the layers panel for every tile.
+
+### Uploading to Figma via curl — never put a literal comma in the filename
+
+If the upload step POSTs files with `curl -F "file=@<filename>"` (multipart form), a `,` inside
+`<filename>` breaks it: curl's `-F` syntax treats a comma in the `@`-path as a separator for
+uploading *multiple* files under one field, so `..._已加入(週末,含報價提醒)_1of2.png` gets split
+into two bogus paths that don't exist on disk, and the upload fails with
+`curl: (26) Failed to open/read local data from file/application` — while filenames without a
+comma upload fine, making the failure look intermittent/random rather than what it is
+(deterministic, keyed on one character). This is a `curl` behavior, not a Figma or network issue.
+
+**Avoid the semantic names you're already generating (see above) ever containing a literal `,`.**
+Use the ideographic comma `、` instead when a name needs to list multiple things — it reads
+naturally in Chinese anyway, so this isn't a workaround-looking substitution, e.g.
+`_已加入(週末、含報價提醒)_1of2`. If a comma already slipped into a filename before uploading,
+rename it (swap `,` → `、`) before the upload step, not after — retrying the same broken name
+just fails again.
 
 ### Layout spacing when placing into Figma
 
